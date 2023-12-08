@@ -1,0 +1,126 @@
+name: Node.js Electron CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build_ubuntu:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.15.0]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install # 或 npm install
+
+      - name: Build the Electron app
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx electron-builder
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-ubuntu-x64
+          path: |
+            dist/electron-ms-copilot*
+            !dist/*.blockmap
+
+  build_windows:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [18.15.0]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install # 或 npm install
+
+      - name: Build the Electron app
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx electron-builder
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-windows-x64
+          path: |
+            dist/electron-ms-copilot*.exe
+            !dist/*.blockmap
+
+  build_macos:
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        node-version: [18.15.0]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install # 或 npm install
+
+      - name: Build the Electron app
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx electron-builder
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-macos-x64
+          path: |
+            dist/electron-ms-copilot*.dmg
+            !dist/*.blockmap
+
+  build_macos_m2:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        node-version: [18.15.0]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install # 或 npm install
+
+      - name: Build the Electron app
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx electron-builder --mac --arm64
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-macos-arm64
+          path: |
+            dist/electron-ms-copilot*.dmg
+            !dist/*.blockmap
